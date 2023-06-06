@@ -1,3 +1,4 @@
+import subprocess as SPROC
 import xml.etree.ElementTree as ET
 
 _voice_over_xpath = "./AudioModification/ExternalEvent/Container/Path/StateList/State[Name='CrewName']/Value"
@@ -22,3 +23,11 @@ def fetch_portraits(working_folder):
   for portrait_list in portraits.values():
     portrait_list.sort()
   return portraits
+
+def unpack(wows_folder, working_folder, pattern):
+  SPROC.run(["wowsunpack.exe",
+   "-x", wows_folder/"idx",
+   "-p", "../../../res_packages",
+   "-I", pattern,
+   "-o", working_folder],
+   check=True)
