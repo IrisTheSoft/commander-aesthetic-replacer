@@ -1,4 +1,9 @@
 { pkgs ? import <nixpkgs> {} }:
-(pkgs.python3.withPackages (ps: with ps; [
-  polib
-])).env
+pkgs.mkShell {
+  packages = with pkgs; [
+    (python310.withPackages (ps: with ps; [
+      pyside6
+      polib
+    ]))
+  ];
+}
