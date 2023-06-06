@@ -19,6 +19,8 @@ class FileSelector(QTW.QWidget):
 
   def __init__(self):
     super().__init__()
+    self.value = ""
+
     layout = QTW.QHBoxLayout()
     layout.setContentsMargins(0, 0, 0, 0)
 
@@ -33,9 +35,9 @@ class FileSelector(QTW.QWidget):
     self.setLayout(layout)
 
   def update_label(self):
-    path = QTW.QFileDialog.getOpenFileName(self, "Open file",
+    self.value = QTW.QFileDialog.getOpenFileName(self, "Open file",
      str(_working_folder/"gui"/"crew_commander"/"base"))[0]
-    self.label.setText(path)
+    self.label.setText("/".join(self.value.rsplit("/", 2)[1:]))
 
 class ReplacementWidget(QTW.QWidget):
 
