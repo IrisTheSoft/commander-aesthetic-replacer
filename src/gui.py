@@ -20,6 +20,28 @@ unique_commanders = {
 voice_overs = ["(None)"] + fetch_voice_overs(_working_folder)
 portraits = fetch_portraits(_working_folder)
 
+class FileSelector(QTW.QWidget):
+
+  def __init__(self):
+    super().__init__()
+    layout = QTW.QHBoxLayout()
+    layout.setContentsMargins(0, 0, 0, 0)
+
+    self.button = QTW.QPushButton()
+    self.button.setText("Select")
+    self.button.clicked.connect(self.update_label)
+    layout.addWidget(self.button)
+
+    self.label = QTW.QLabel()
+    layout.addWidget(self.label)
+
+    self.setLayout(layout)
+
+  def update_label(self):
+    path = QTW.QFileDialog.getOpenFileName(self, "Open file",
+     str(_working_folder/"gui"/"crew_commander"/"base"))[0]
+    self.label.setText(path)
+
 class ReplacementWidget(QTW.QWidget):
 
   def __init__(self):
@@ -34,11 +56,7 @@ class ReplacementWidget(QTW.QWidget):
     self.voice_overs.addItems(voice_overs)
     layout.addRow("Voice over:", self.voice_overs)
 
-    self.portraits_nations = QTW.QComboBox()
-    self.portraits = QTW.QComboBox()
-    self.portraits_nations.currentIndexChanged.connect(self.update_portraits)
-    self.portraits_nations.addItems(sorted(portraits.keys()))
-    layout.addRow("Portrait nation:", self.portraits_nations)
+    self.portraits = FileSelector()
     layout.addRow("Portrait:", self.portraits)
 
     self.names = QTW.QLineEdit()
@@ -46,9 +64,9 @@ class ReplacementWidget(QTW.QWidget):
 
     self.setLayout(layout)
 
-  def update_portraits(self):
-    self.portraits.clear()
-    self.portraits.addItems(portraits[self.portraits_nations.currentText()])
+  def choose_portrait(self):
+    path = QTW.QFileDialog.getOpenFileName(self, "Open file")[0]
+    self.portraits.setText(path)
 
 class MainWindow(QTW.QMainWindow):
 
