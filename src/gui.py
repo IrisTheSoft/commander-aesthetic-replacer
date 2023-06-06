@@ -1,3 +1,4 @@
+import csv as CSV
 import pathlib as PTH
 import sys as SYS
 
@@ -8,14 +9,8 @@ from fetch import *
 _working_folder = PTH.Path("working")
 _title = "Commander Aesthetic Replacer"
 
-unique_commanders = {
-  "Yamamoto Isoroku": None,
-  "William F. Halsey Jr.": None,
-  "Günther Lütjens": None,
-  "Nikolay Kuznetsov": None,
-  "Luigi Sansonetti": None,
-  "Andrew Cunningham": None
-}
+with open("unique.csv") as csv:
+  unique_commanders = {row[0]: row[1:] for row in CSV.reader(csv)}
 
 voice_overs = ["(None)"] + fetch_voice_overs(_working_folder)
 portraits = fetch_portraits(_working_folder)
