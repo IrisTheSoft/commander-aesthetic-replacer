@@ -1,3 +1,4 @@
+import collections as COL
 import csv as CSV
 import pathlib as PTH
 import sys as SYS
@@ -6,14 +7,7 @@ import PySide6.QtWidgets as QTW
 
 from fetch import *
 
-_working_folder = PTH.Path("working")
-_title = "Commander Aesthetic Replacer"
-
-with open("unique.csv") as csv:
-  unique_commanders = {row[0]: row[1:] for row in CSV.reader(csv)}
-
-voice_overs = ["(None)"] + fetch_voice_overs(_working_folder)
-portraits = fetch_portraits(_working_folder)
+Modification = COL.namedtuple("Modification", ["voice_over", "portrait", "name"])
 
 class FileSelector(QTW.QWidget):
 
@@ -51,16 +45,14 @@ class ReplacementsWidget(QTW.QWidget):
     layout.addWidget(QTW.QLabel("Remove"), 0, 4)
     self.setLayout(layout)
     self.add_row()
-    self.add_row()
-    self.add_row()
 
   def add_row(self):
     layout = self.layout()
     index = layout.rowCount()
     unique = QTW.QComboBox()
-    unique.addItems(unique_commanders.keys())
+    unique.addItems(_unique_commanders.keys())
     voice_over = QTW.QComboBox()
-    voice_over.addItems(voice_overs)
+    voice_over.addItems(_voice_overs)
     portrait = FileSelector()
     name = QTW.QLineEdit()
     remove = QTW.QPushButton()
@@ -78,6 +70,16 @@ class ReplacementsWidget(QTW.QWidget):
     for _ in range(5):
       layout.takeAt(index).widget().setParent(None)
 
+  def get_values(self):
+    values = {}
+    layout = self.layout()
+    for row in range(1, layout.rowCount()):
+      values[layout.itemAtPosition(row, 0).widget().currentText()] = Modification(
+       layout.itemAtPosition(row, 1).widget().currentText(),
+       layout.itemAtPosition(row, 2).widget().value,
+       layout.itemAtPosition(row, 3).widget().text())
+    return values
+
 class MainWidget(QTW.QWidget):
 
   def __init__(self):
@@ -85,13 +87,39 @@ class MainWidget(QTW.QWidget):
     layout = QTW.QVBoxLayout()
     self.replacements = ReplacementsWidget()
     layout.addWidget(self.replacements)
+    buttons_layout = QTW.QHBoxLayout()
+
     self.add_button = QTW.QPushButton()
     self.add_button.setText("Add replacement")
     self.add_button.clicked.connect(self.replacements.add_row)
-    layout.addWidget(self.add_button)
+    buttons_layout.addWidget(self.add_button)
+
+    self.load_button = QTW.QPushButton()
+    self.load_button.setText("Load")
+    buttons_layout.addWidget(self.load_button)
+
+    self.install_button = QTW.QPushButton()
+    self.install_button.setText("Install")
+    self.install_button.clicked.connect(self.install)
+    buttons_layout.addWidget(self.install_button)
+
+    layout.addLayout(buttons_layout)
     self.setLayout(layout)
 
+  def install(self):
+    print(self.replacements.get_values())
+
+_title = "Commander Aesthetic Replacer"
+
+with open("commanders.csv") as csv:
+  _unique_commanders = {row[0]: row[1:] for row in CSV.reader(csv)}
+
 app = QTW.QApplication(SYS.argv)
+
+_wows_folder = PTH.Path(
+ QTW.QFileDialog.getExistingDirectory(None, "Choose WoWs folder"))
+_working_folder = PTH.Path("working")
+_voice_overs = ["(None)"] + fetch_voice_overs(_working_folder)
 
 window = MainWidget()
 window.show()
