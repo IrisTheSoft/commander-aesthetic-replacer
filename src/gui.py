@@ -39,42 +39,61 @@ class FileSelector(QTW.QWidget):
      str(_working_folder/"gui"/"crew_commander"/"base"))[0]
     self.label.setText("/".join(self.value.rsplit("/", 2)[1:]))
 
-class ReplacementWidget(QTW.QWidget):
+class ReplacementsWidget(QTW.QWidget):
 
   def __init__(self):
     super().__init__()
-    layout = QTW.QFormLayout()
-
-    self.uniques = QTW.QComboBox()
-    self.uniques.addItems(unique_commanders)
-    layout.addRow("Commander:", self.uniques)
-
-    self.voice_overs = QTW.QComboBox()
-    self.voice_overs.addItems(voice_overs)
-    layout.addRow("Voice over:", self.voice_overs)
-
-    self.portraits = FileSelector()
-    layout.addRow("Portrait:", self.portraits)
-
-    self.names = QTW.QLineEdit()
-    layout.addRow("Name:", self.names)
-
+    layout = QTW.QGridLayout()
+    layout.addWidget(QTW.QLabel("Commander"), 0, 0)
+    layout.addWidget(QTW.QLabel("Voice over"), 0, 1)
+    layout.addWidget(QTW.QLabel("Portrait"), 0, 2)
+    layout.addWidget(QTW.QLabel("Name"), 0, 3)
+    layout.addWidget(QTW.QLabel("Remove"), 0, 4)
     self.setLayout(layout)
+    self.add_row()
+    self.add_row()
+    self.add_row()
 
-  def choose_portrait(self):
-    path = QTW.QFileDialog.getOpenFileName(self, "Open file")[0]
-    self.portraits.setText(path)
+  def add_row(self):
+    layout = self.layout()
+    index = layout.rowCount()
+    unique = QTW.QComboBox()
+    unique.addItems(unique_commanders.keys())
+    voice_over = QTW.QComboBox()
+    voice_over.addItems(voice_overs)
+    portrait = FileSelector()
+    name = QTW.QLineEdit()
+    remove = QTW.QPushButton()
+    remove.setText("Remove")
+    remove.clicked.connect(lambda: self.remove_row(unique))
+    layout.addWidget(unique, index, 0)
+    layout.addWidget(voice_over, index, 1)
+    layout.addWidget(portrait, index, 2)
+    layout.addWidget(name, index, 3)
+    layout.addWidget(remove, index, 4)
 
-class MainWindow(QTW.QMainWindow):
+  def remove_row(self, unique):
+    layout = self.layout()
+    index = layout.indexOf(unique)
+    for _ in range(5):
+      layout.takeAt(index).widget().setParent(None)
+
+class MainWidget(QTW.QWidget):
 
   def __init__(self):
     super().__init__()
-    self.setWindowTitle(_title)
-    self.setCentralWidget(ReplacementWidget())
+    layout = QTW.QVBoxLayout()
+    self.replacements = ReplacementsWidget()
+    layout.addWidget(self.replacements)
+    self.add_button = QTW.QPushButton()
+    self.add_button.setText("Add replacement")
+    self.add_button.clicked.connect(self.replacements.add_row)
+    layout.addWidget(self.add_button)
+    self.setLayout(layout)
 
 app = QTW.QApplication(SYS.argv)
 
-window = MainWindow()
+window = MainWidget()
 window.show()
 
 app.exec()
