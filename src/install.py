@@ -4,6 +4,8 @@ import pathlib as PTH
 import shutil as SHU
 import xml.etree.ElementTree as ET
 
+import polib as PO
+
 _modified_centinel = "modified"
 _wem_name_xpath = "./AudioModification/ExternalEvent/Container/Path/FilesList/File/Name"
 _crew_name_xpath = ("./AudioModification/ExternalEvent/Container/Path/StateList/" +
@@ -15,7 +17,6 @@ _path_relative_xpath = ("./Container/Path/StateList/State[Name='CrewName']/" +
 _crew_name_relative_xpath = "./StateList/State[Name='CrewName']/Value"
 
 def install_voice_overs(working_folder, output_folder, mod_id, mod_name, changes):
-  changes.pop("", None)
   if not changes:
     return
 
@@ -70,7 +71,6 @@ def install_voice_overs(working_folder, output_folder, mod_id, mod_name, changes
       mod_folder/new_file_name)
 
 def install_portraits(working_folder, output_folder, changes):
-  changes.pop("", None)
   if not changes:
     return
 
@@ -81,3 +81,16 @@ def install_portraits(working_folder, output_folder, changes):
     if not full_destination.parent.is_dir():
       OS.mkdir(full_destination.parent)
     SHU.copyfile(working_folder/"gui/crew_commander/base"/source, full_destination)
+
+def install_names(wows_folder, output_folder, language, changes):
+  if not changes:
+    return
+
+  mo = PO.mofile(wows_folder/"res/texts"/language/"LC_MESSAGES/global.mo")
+  for entry in mo:
+    if entry.msgid in changes:
+      entry.msgstr = changes[entry.msgid]
+
+  mod_folder = output_folder/"texts"/language/"LC_MESSAGES"
+  OS.makedirs(mod_folder)
+  mo.save(mod_folder/"global.mo")
