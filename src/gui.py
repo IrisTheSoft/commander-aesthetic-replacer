@@ -113,13 +113,19 @@ class MainWidget(QTW.QWidget):
 
   def install(self):
     voice_over_changes = {}
+    portrait_changes = {}
+
     for commander_name, modification in self.replacements.get_values().items():
       commander = _unique_commanders[commander_name]
       if modification.voice_over not in voice_over_changes.keys():
         voice_over_changes[modification.voice_over] = []
       voice_over_changes[modification.voice_over].append(commander.voice_over)
+      portrait_changes[commander.portrait] = modification.portrait
+
     install_voice_overs(_working_folder, _output_folder,
       "CommanderAestheticReplacer", "Commander Aesthetic Replacer", voice_over_changes)
+    install_portraits(_working_folder, _output_folder, portrait_changes)
+
 
 _title = "Commander Aesthetic Replacer"
 

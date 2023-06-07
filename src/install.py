@@ -14,7 +14,7 @@ _path_relative_xpath = ("./Container/Path/StateList/State[Name='CrewName']/" +
 _crew_name_relative_xpath = "./StateList/State[Name='CrewName']/Value"
 
 def install_voice_overs(working_folder, output_folder, mod_id, mod_name, changes):
-
+  changes.pop("", None)
   if not changes:
     return
 
@@ -67,3 +67,16 @@ def install_voice_overs(working_folder, output_folder, mod_id, mod_name, changes
   for subfolder, old_file_name, new_file_name in required_wems:
     OS.rename(working_folder/"banks/OfficialMods"/subfolder/old_file_name,
       mod_folder/new_file_name)
+
+def install_portraits(working_folder, output_folder, changes):
+  changes.pop("", None)
+  if not changes:
+    return
+
+  mod_folder = output_folder/"gui/crew_commander/base"
+  for source, target in changes.items():
+    nation_folder = PTH.Path(target).parent
+    if not nation_folder.isdir():
+      OS.mkdir(nation_folder)
+    SHU.copyfile(working_folder/"gui/crew_commander/base"/target,
+      mod_folder/source)
