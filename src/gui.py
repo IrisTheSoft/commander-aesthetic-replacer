@@ -138,13 +138,13 @@ _wows_folder = PTH.Path(
  QTW.QFileDialog.getExistingDirectory(None, "Choose WoWs folder"))
 _working_folder = PTH.Path("working")
 _output_folder = PTH.Path("res_mods")
-for _folder in [_output_folder]: # TODO: Add _working_folder
+for _folder in [_working_folder, _output_folder]:
   if _folder.exists():
     SHU.rmtree(_folder)
   OS.makedirs(_folder)
 
-#unpack(_wows_folder, _working_folder, "banks/OfficialMods/*")
-#unpack(_wows_folder, _working_folder, "gui/crew_commander/base/*")
+unpack(_wows_folder, _working_folder, "banks/OfficialMods/*")
+unpack(_wows_folder, _working_folder, "gui/crew_commander/base/*")
 
 _keep_centinel = "(None)"
 _voice_overs = [_keep_centinel] + fetch_voice_overs(_working_folder)

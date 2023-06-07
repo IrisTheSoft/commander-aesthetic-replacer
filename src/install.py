@@ -1,6 +1,7 @@
 import copy as CP
 import os as OS
 import pathlib as PTH
+import shutil as SHU
 import xml.etree.ElementTree as ET
 
 _modified_centinel = "modified"
@@ -74,9 +75,9 @@ def install_portraits(working_folder, output_folder, changes):
     return
 
   mod_folder = output_folder/"gui/crew_commander/base"
-  for source, target in changes.items():
-    nation_folder = PTH.Path(target).parent
-    if not nation_folder.isdir():
-      OS.mkdir(nation_folder)
-    SHU.copyfile(working_folder/"gui/crew_commander/base"/target,
-      mod_folder/source)
+  OS.makedirs(mod_folder)
+  for destination, source in changes.items():
+    full_destination = PTH.Path(mod_folder, destination)
+    if not full_destination.parent.is_dir():
+      OS.mkdir(full_destination.parent)
+    SHU.copyfile(working_folder/"gui/crew_commander/base"/source, full_destination)
