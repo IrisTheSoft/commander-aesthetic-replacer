@@ -8,8 +8,10 @@ import sys as SYS
 import PySide6.QtWidgets as QTW
 
 from fetch import *
+from install import *
 
 Modification = COL.namedtuple("Modification", ["voice_over", "portrait", "name"])
+Commander = COL.namedtuple("Commander", ["voice_over", "portrait", "name_id"])
 
 class FileSelector(QTW.QWidget):
 
@@ -110,12 +112,19 @@ class MainWidget(QTW.QWidget):
     self.setLayout(layout)
 
   def install(self):
-    print(self.replacements.get_values())
+    voice_over_changes = {}
+    for commander_name, modification in self.replacements.get_values().items():
+      commander = _unique_commanders[commander_name]
+      if modification.voice_over not in voice_over_changes.keys():
+        voice_over_changes[modification.voice_over] = []
+      voice_over_changes[modification.voice_over].append(commander.voice_over)
+    install_voice_overs(_working_folder, _output_folder,
+      "CommanderAestheticReplacer", "Commander Aesthetic Replacer", voice_over_changes)
 
 _title = "Commander Aesthetic Replacer"
 
 with open("commanders.csv") as csv:
-  _unique_commanders = {row[0]: row[1:] for row in CSV.reader(csv)}
+  _unique_commanders = {row[0]: Commander(*row[1:]) for row in CSV.reader(csv)}
 
 app = QTW.QApplication(SYS.argv)
 
@@ -123,13 +132,13 @@ _wows_folder = PTH.Path(
  QTW.QFileDialog.getExistingDirectory(None, "Choose WoWs folder"))
 _working_folder = PTH.Path("working")
 _output_folder = PTH.Path("res_mods")
-for _folder in [_working_folder, _output_folder]:
-  if folder.exists():
+for _folder in [_output_folder]: # TODO: Add _working_folder
+  if _folder.exists():
     SHU.rmtree(_folder)
   OS.makedirs(_folder)
 
-unpack(_wows_folder, _working_folder, "banks/OfficialMods/*")
-unpack(_wows_folder, _working_folder, "gui/crew_commander/base/*")
+#unpack(_wows_folder, _working_folder, "banks/OfficialMods/*")
+#unpack(_wows_folder, _working_folder, "gui/crew_commander/base/*")
 
 _keep_centinel = "(None)"
 _voice_overs = [_keep_centinel] + fetch_voice_overs(_working_folder)
