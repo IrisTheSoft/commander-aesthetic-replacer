@@ -82,6 +82,8 @@ class ReplacementsWidget(QTW.QWidget):
     values = {}
     layout = self.layout()
     for row in range(1, layout.rowCount()):
+      if layout.itemAtPosition(row, 1) is None:
+        continue
       voice_over = layout.itemAtPosition(row, 1).widget().currentText()
       values[layout.itemAtPosition(row, 0).widget().currentText()] = Modification(
        voice_over if voice_over != _keep_centinel else "",
