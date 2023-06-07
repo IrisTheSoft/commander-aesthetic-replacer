@@ -1,3 +1,4 @@
+import os as OS
 import subprocess as SPROC
 import xml.etree.ElementTree as ET
 
@@ -23,6 +24,9 @@ def fetch_portraits(working_folder):
   for portrait_list in portraits.values():
     portrait_list.sort()
   return portraits
+
+def fetch_languages(wows_folder):
+  return OS.listdir(wows_folder/"res/texts")
 
 def unpack(wows_folder, working_folder, pattern):
   SPROC.run(["wowsunpack.exe",

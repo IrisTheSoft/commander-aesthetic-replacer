@@ -46,7 +46,11 @@ class ReplacementsWidget(QTW.QWidget):
     layout.addWidget(QTW.QLabel("Voice over"), 0, 1)
     layout.addWidget(QTW.QLabel("Portrait"), 0, 2)
     layout.addWidget(QTW.QLabel("Name"), 0, 3)
-    layout.addWidget(QTW.QLabel("Remove"), 0, 4)
+
+    self.add_button = QTW.QPushButton()
+    self.add_button.setText("Add")
+    self.add_button.clicked.connect(self.add_row)
+    layout.addWidget(self.add_button, 0, 4)
     self.setLayout(layout)
     self.add_row()
 
@@ -92,26 +96,25 @@ class MainWidget(QTW.QWidget):
     layout = QTW.QVBoxLayout()
     self.replacements = ReplacementsWidget()
     layout.addWidget(self.replacements)
-    buttons_layout = QTW.QHBoxLayout()
+    form_layout = QTW.QFormLayout()
 
-    self.add_button = QTW.QPushButton()
-    self.add_button.setText("Add replacement")
-    self.add_button.clicked.connect(self.replacements.add_row)
-    buttons_layout.addWidget(self.add_button)
-
-    self.load_button = QTW.QPushButton()
-    self.load_button.setText("Load")
-    buttons_layout.addWidget(self.load_button)
+    self.language_box = QTW.QComboBox()
+    self.language_box.addItems(fetch_languages(_wows_folder))
+    form_layout.addRow("Names Mod Language", self.language_box)
+    self.voice_mod_name_box = QTW.QLineEdit("My Voice Mod")
+    form_layout.addRow("Voice Mod Name", self.voice_mod_name_box)
 
     self.install_button = QTW.QPushButton()
     self.install_button.setText("Install")
     self.install_button.clicked.connect(self.install)
-    buttons_layout.addWidget(self.install_button)
+    form_layout.addWidget(self.install_button)
 
-    layout.addLayout(buttons_layout)
+    layout.addLayout(form_layout)
     self.setLayout(layout)
 
   def install(self):
+    self.install_button.setDisabled(True)
+
     voice_over_changes = {}
     portrait_changes = {}
     name_changes = {}
@@ -128,9 +131,14 @@ class MainWidget(QTW.QWidget):
         name_changes[commander.name_id] = modification.name
 
     install_voice_overs(_working_folder, _output_folder,
-      "CommanderAestheticReplacer", "Commander Aesthetic Replacer", voice_over_changes)
+      _title.replace(" ", ""), self.voice_mod_name_box.text(), voice_over_changes)
     install_portraits(_working_folder, _output_folder, portrait_changes)
-    install_names(_wows_folder, _output_folder, "en", name_changes)
+    install_names(_wows_folder, _output_folder, self.language_box.currentText(),
+      name_changes)
+
+    SHU.rmtree(_working_folder)
+
+    self.layout().addWidget(QTW.QLabel("Success!"))
 
 _title = "Commander Aesthetic Replacer"
 
