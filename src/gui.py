@@ -95,6 +95,7 @@ class MainWidget(QTW.QWidget):
 
   def __init__(self):
     super().__init__()
+    self.setWindowTitle(_title)
     layout = QTW.QVBoxLayout()
     self.replacements = ReplacementsWidget()
     layout.addWidget(self.replacements)
